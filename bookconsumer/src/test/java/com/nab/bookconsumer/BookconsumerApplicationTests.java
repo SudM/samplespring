@@ -1,50 +1,55 @@
 package com.nab.bookconsumer;
 
-import org.json.JSONException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
 
-import com.nab.bookconsumer.resources.BookResource;
+import com.nab.bookconsumer.service.BookService;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 class BookconsumerApplicationTests {
+
 	@LocalServerPort
 	private int port;
+
+	@Autowired
+	private BookService service;
 	
-	//TestRestTemplate restTemplate = new TestRestTemplate();
-	@Autowired
-	private TestRestTemplate restTemplate;
-	@Autowired
-	private BookServic controller;
-
-	HttpHeaders headers = new HttpHeaders();
+	//Successful Data retrieval Test case
 	@Test
-	void contextLoads() throws JSONException {
-		System.out.println("test");
-		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
-
-		String response = controller.getInfo("1");
-		
-		System.out.println(response);
-
-		//String expected = "{id:Course1,name:Spring,description:10Steps}";
-
-		//JSONAssert.assertEquals(expected, response.getBody(), false);
+	void fetchData() throws Exception {
+		String response = service.getInfo("OL1A.json");
+		String expected = response;
+		JSONAssert.assertEquals(expected, response, false);
 	}
-	private String createURLWithPort(String uri) {
-		return "http://localhost:" + port + uri;
+	
+	//Exception Handling Test - 404
+	@Test
+	void fetchDataNotFoundException() {
+		try {
+			service.getInfo(null);
+		} catch (HttpClientErrorException ex) {
+			throw new AssertionError(ex.getStatusCode() + " 404 Error: Book Id does not exist");
+		}
+	}
+
+	//Exception Handling Test - Internal Error - NullPointer Exception
+	@Test
+	void fetchInternalErrorException() {
+		try {
+			service = null;
+			service.getInfo(null);
+		} catch (Exception ex) {
+			throw new AssertionError("500 Internal Error");
+		}
 	}
 }
-

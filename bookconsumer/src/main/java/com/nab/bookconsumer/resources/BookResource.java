@@ -1,27 +1,28 @@
 package com.nab.bookconsumer.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import com.nab.bookconsumer.service.BookService;
-
+/*
+ * This is a Rest Controller class which accepts the user request and
+ * invokes the service class to communicate with actual third party API.
+ * The response received from the third party api get sent as a string 
+ * to the requester. 
+ */
 @RestController
-@RequestMapping("/Books")
+@RequestMapping("/bookauthor")
 public class BookResource {
 
 	@Autowired
-   BookService bookservice;
+	BookService bookservice;
 
-   
-    @RequestMapping("/{bookId}")
-    public String getInfo(@PathVariable("bookId") String Id) {
-    	 return bookservice.getInfo(Id);
+	@RequestMapping("/{Id}")
+	public String getInfo(@PathVariable("Id") String Id) {
+		return bookservice.getInfo(Id);
 
-    }
+	}
 
 }
